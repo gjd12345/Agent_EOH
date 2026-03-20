@@ -1,6 +1,6 @@
-# Agent_EOH: 自主科研智能体系统
+# Agent_EOH: 基于EOH框架的代码自进化Agent
 
-基于 EoH (Evolution of Heuristics) 框架的自主科研智能体系统，专注于 CVRP（ Capacitated Vehicle Routing Problem）组合优化问题的算法自动设计。
+基于 EoH (Evolution of Heuristics) 框架的自主科研智能体系统，专注于 CVRP（ Capacitated Vehicle Routing Problem）等组合优化问题的算法自动设计。
 
 ---
 
