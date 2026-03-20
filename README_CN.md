@@ -37,13 +37,28 @@ EoH: Evolution of Heuristics
 
 **演变计算** + **大型语言模型**的平台，用于自动算法设计。
 
-<img src="./docs/figures/eoh.JPG" alt="eoh" width="600" height="280">
+<img src="./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/eoh.JPG" alt="eoh" width="600" height="280">
 
 ---
 ##  新闻  🔥 
 
 + 2024.5.5 [L-AutoDA: Leveraging Large Language Models for Automated Decision-based Adversarial Attacks](https://arxiv.org/abs/2401.15335) 已被 **GECCO 2024** 录用了! 🎉
 + 2024.5.2 [EoH (Evolution of Heuristics: Towards Efficient Automatic Algorithm Design using Large Language Model)](https://arxiv.org/abs/2401.02051) 已被 **ICML 2024** 录用了！🎉
+
+---
+
+## 🖼️ 版本演进效果演示 (Version Evolution)
+
+| V0: 基础演化 (Baseline) | V1: 自动化流水线 (Workflow) | V2: ReAct 智能体 (Agent) |
+| :---: | :---: | :---: |
+| ![V0](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/v0_baseline.png) | ![V1](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/v1_workflow.png) | ![V2](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/v2_agent.png) |
+| *基础贪心策略 (Nearest Neighbor)* | *全局启发式搜索 (Sweep)* | *智能体自主优化 (Farthest Insertion + Local Search)* |
+
+### 📈 性能量化对比 (Performance Benchmark)
+
+下图展示了三个版本在不同 CVRP 实例上的总路径成本对比（数值越低代表性能越好）：
+
+![Performance Comparison](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/performance_comparison.png)
 
 ---
 
@@ -54,13 +69,13 @@ EoH: Evolution of Heuristics
 
 EOH引入了一种新的范式，利用大型语言模型（LLMs）和演变计算（EC）之间的协同作用进行自动启发式设计（AHD）。思维和代码在演变框架内的共同演化为卓越的AHD性能，同时降低了计算成本。
 
-<img src="./docs/figures/framework.jpg" alt="eoh" width="600" height="auto">
+<img src="./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/framework.jpg" alt="eoh" width="600" height="auto">
 
 EOH在分钟/小时内设计出了非常有竞争力的算法/启发式方法。例如，在在线装箱问题上，EoH自动设计出新的最优启发式算法，优于人工设计算法和同期谷歌工作FunSearch。
 
 下图显示了在在线装箱问题上EOH的演变。我们概述了在演变过程中对最佳结果有所贡献的关键**思想**和相应的**代码**。此外，我们标记了导致改进的提示策略。最后，我们展示了最终种群中的最优启发式方法，并将其与人类设计的启发式方法和来自FunSearch的启发式方法进行了比较。
 
-<img src="./docs/figures/evolution.jpg" alt="ael" width="1000" height="auto">
+<img src="./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/evolution.jpg" alt="ael" width="1000" height="auto">
 
 
 

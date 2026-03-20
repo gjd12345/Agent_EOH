@@ -78,6 +78,21 @@ python v0_baseline/runEoH.py
 
 ---
 
+## 🖼️ 版本演进效果演示 (Version Evolution)
+
+| V0: 基础演化 (Baseline) | V1: 自动化流水线 (Workflow) | V2: ReAct 智能体 (Agent) |
+| :---: | :---: | :---: |
+| ![V0](./docs/figures/v0_baseline.png) | ![V1](./docs/figures/v1_workflow.png) | ![V2](./docs/figures/v2_agent.png) |
+| *基础贪心策略 (Nearest Neighbor)* | *全局启发式搜索 (Sweep)* | *智能体自主优化 (Farthest Insertion + Local Search)* |
+
+### 📈 性能量化对比 (Performance Benchmark)
+
+下图展示了三个版本在不同 CVRP 实例上的总路径成本对比（数值越低代表性能越好）：
+
+![Performance Comparison](./docs/figures/performance_comparison.png)
+
+---
+
 ## 🚀 核心方案设计：以 CVRP 为例
 
 CVRP (Capacitated Vehicle Routing Problem) 是 NP-Hard 问题。我们采用 **"Route-First, Cluster-Second" (先排序，后切分)** 的经典思路进行拆解：

@@ -14,6 +14,21 @@
 
 ---
 
+## 🖼️ 版本效果演示 (Version Evolution)
+
+| V0: 基础演化 (Baseline) | V1: 自动化流水线 (Workflow) | V2: ReAct 智能体 (Agent) |
+| :---: | :---: | :---: |
+| ![V0](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/v0_baseline.png) | ![V1](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/v1_workflow.png) | ![V2](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/v2_agent.png) |
+| *基础贪心策略 (Nearest Neighbor)* | *全局启发式搜索 (Sweep)* | *智能体自主优化 (Farthest Insertion + Local Search)* |
+
+### 📈 性能量化对比 (Performance Benchmark)
+
+下图展示了三个版本在不同 CVRP 实例上的总路径成本对比（数值越低代表性能越好）：
+
+![Performance Comparison](./eoh/src/eoh/examples/user_cvrp_hgs/docs/figures/performance_comparison.png)
+
+---
+
 ## 📂 项目结构
 
 ```
