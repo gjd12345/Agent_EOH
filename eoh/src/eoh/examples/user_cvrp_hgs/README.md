@@ -1,6 +1,6 @@
 # HGS-ReAct: 基于多专家协作的自主 CVRP 启发式算法演化系统
 
-本项目 (V2.7) 旨在利用大语言模型 (LLM) 的推理能力与 **EoH (Evolution of Heuristics)** 框架深度融合，构建一个具备“自主科学发现”能力的专家团队。系统通过 **ReAct (Reasoning-Acting)** 框架驱动，实现了车辆路径问题 (CVRP) 算法的联网调研、架构设计、静态审计、演化诊断、可视化报告及工业级部署。
+本项目的最新进展 (V2.7) 旨在利用大语言模型 (LLM) 的推理能力与 **EoH (Evolution of Heuristics)** 框架深度融合，构建一个具备“自主科学发现”能力的专家团队。系统通过 **ReAct (Reasoning-Acting)** 框架驱动，实现了车辆路径问题 (CVRP) 算法的联网调研、架构设计、静态审计、演化诊断、可视化报告及工业级部署。
 
 ### 🤖 核心专家团队 (Agent Ecosystem)
 - **Master Agent (总控专家)**: 采用 ReAct 循环，负责全局任务拆解、目标设定与跨 Agent 调度。
