@@ -80,7 +80,7 @@ python v1_workflow/master_agent.py
 ```
 - **核心逻辑**: KIMI 设计 PRM -> DeepSeek 运行 EoH 演化 -> 分析结果 -> 自动修复 'None' 报错代码 -> 反馈循环。
 
-#### V2.4: 自主 ReAct 智能体 (Intelligent ReAct Agent)
+#### V2.0: 自主 ReAct 智能体 (Intelligent ReAct Agent)
 目前最强大的版本，具备联网调研、多角色协作与严谨质检能力。
 ```bash
 python v2_agent/react_master_agent.py
