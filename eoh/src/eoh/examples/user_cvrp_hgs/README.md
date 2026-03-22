@@ -326,7 +326,7 @@ python v2_agent/benchmark_comparison.py
     - **高效率进化**: 通过 Reviewer Agent 拦截无效代码，节省了大量的硬件评估资源。
 
 ### V2.7: 可视化专家与部署专家 (Visualizer & Deployer Agents)
-- **更新时间**: 2026-03-24
+- **更新时间**: 2026-03-23
 - **文件改动**:
     - [visualizer_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/visualizer_agent.py): **可视化专家**。负责生成收敛曲线、路径轨迹图，并将图片自动嵌入科研笔记。
     - [deployer_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/deployer_agent.py): **部署专家**。将最佳算法封装为独立的 Python 模块，生成 README 文档并进行压力测试。
