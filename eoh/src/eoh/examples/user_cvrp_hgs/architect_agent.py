@@ -5,6 +5,9 @@ import re
 import time
 import random
 
+# For data collection (Post-training)
+from v2_agent.dataset_collector import collector as dataset_collector
+
 class ArchitectAgent:
     """
     Architect Agent for EoH.
@@ -58,7 +61,8 @@ Your Task:
 Write a Python code snippet that calculates a variable named 'process_reward'. 
 CRITICAL CONSTRAINTS:
 1. This must be a raw code snippet, NOT a function definition.
-2. DO NOT use 'return' statements.
+2. DO NOT include any 'import' statements (numpy is already available as 'np').
+3. DO NOT use 'return' statements.
 3. The final value must be assigned to the variable 'process_reward'.
 4. This value will be ADDED to the distance (lower is better, so 'process_reward' should be a penalty).
 5. Use mathematical properties like Polar Angles, Locality, or Load Balance.
@@ -90,7 +94,14 @@ process_reward = np.sum(np.abs(np.diff(angles))) * 10
                         # Clean code block if LLM returns it
                         code_snippet = re.sub(r'```python|```', '', content).strip()
                         
-                        # 2. Inject into prob.py
+                        # 2. Log for post-training dataset
+                        dataset_collector.log_prm_design(
+                            prm_code=code_snippet, 
+                            reasoning=content, # Full reasoning (includes code)
+                            problem_desc=problem_description
+                        )
+                        
+                        # 3. Inject into prob.py
                         self._inject_into_prob(code_snippet)
                         return True
                     else:

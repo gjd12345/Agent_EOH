@@ -315,11 +315,25 @@ class Evaluation():
                         return None
                     
                     # Basic Validation
-                    if not isinstance(tour, (list, np.ndarray)) or len(np.array(tour).flatten()) != instance['n_customers']:
-                        self._last_error = f"Invalid tour length: got {len(tour) if hasattr(tour, '__len__') else 'N/A'}, expected {instance['n_customers']}"
+                    if not isinstance(tour, (list, np.ndarray)):
+                        self._last_error = f"Invalid return type: expected list or ndarray, got {type(tour)}"
                         return None
                     
-                    tour = np.array(tour).flatten()
+                    tour_arr = np.array(tour).flatten()
+                    if len(tour_arr) != instance['n_customers']:
+                        self._last_error = f"Invalid tour length: got {len(tour_arr)}, expected {instance['n_customers']}. Hint: tour should contain only customer indices (1 to n), excluding depot 0."
+                        return None
+                    
+                    # Check for duplicates or out-of-bounds
+                    if len(set(tour_arr)) != len(tour_arr):
+                        self._last_error = "Tour contains duplicate customer indices."
+                        return None
+                    
+                    if np.any((tour_arr < 1) | (tour_arr > instance['n_customers'])):
+                        self._last_error = f"Tour contains invalid indices (must be between 1 and {instance['n_customers']})."
+                        return None
+                    
+                    tour = tour_arr
                         
                     # 2. Optimal Split
                     try:
@@ -340,9 +354,9 @@ class Evaluation():
                     # --- Process Reward (PRM) Placeholder ---
                     # [INJECTED BY AGENT]
                     polar_angles = np.arctan2(np.diff(instance['coords'][tour, 1]), np.diff(instance['coords'][tour, 0]))
-                    angle_diff = np.sum(np.abs(np.diff(polar_angles)))
-                    load_balance = np.max(np.array([np.sum(instance['demands'][tour[i:i+1]]) for i in range(len(tour))])) / instance['capacity']
-                    process_reward = angle_diff * 10 + load_balance * 100
+                    polar_diff = np.abs(np.diff(polar_angles))
+                    load_balance = np.std([sum(instance['demands'][tour[i:i+5]]) for i in range(0, len(tour), 5)])
+                    process_reward = (np.sum(polar_diff) * 10) + (load_balance * 50)
                     # Composite Fitness: Distance + Agent-designed Penalties
                     fitness = dist + process_reward
                     

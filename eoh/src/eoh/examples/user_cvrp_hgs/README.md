@@ -1,6 +1,25 @@
-# 用户 CVRP 启发式算法生成系统 (HGS)
+# HGS-ReAct: 基于多专家协作的自主 CVRP 启发式算法演化系统
 
-本项目专注于利用大语言模型 (LLM) 研发高性能组合优化算法。本项目基于 **EoH (Evolution of Heuristics)** 框架，实现了车辆路径问题 (CVRP) 启发式算法的自主演化、分析、纠错与优化。
+本项目 (V2.7) 旨在利用大语言模型 (LLM) 的推理能力与 **EoH (Evolution of Heuristics)** 框架深度融合，构建一个具备“自主科学发现”能力的专家团队。系统通过 **ReAct (Reasoning-Acting)** 框架驱动，实现了车辆路径问题 (CVRP) 算法的联网调研、架构设计、静态审计、演化诊断、可视化报告及工业级部署。
+
+### 🤖 核心专家团队 (Agent Ecosystem)
+- **Master Agent (总控专家)**: 采用 ReAct 循环，负责全局任务拆解、目标设定与跨 Agent 调度。
+- **Librarian Agent (知识库管理员)**: 负责结构化管理 `research_notes.md`，从海量搜索结果中提炼 SOTA 榜单与算法算子库。
+- **Architect Agent (算法架构师)**: 基于演化反馈，动态设计过程奖励模型 (PRM) 并注入评估环境，引导进化方向。
+- **Reviewer Agent (质检专家)**: 执行代码门禁。在算法入库前进行静态扫描与 Mock 运行，拦截死循环与逻辑缺陷。
+- **Analyst Agent (性能分析专家)**: 深度剖析演化轨迹，识别收敛瓶颈与种群多样性，为系统提供战略性调整建议。
+- **Refiner Agent (调优专家)**: 针对性能不佳或报错的代码，利用逻辑推理能力进行最小化修复与精细化重构。
+- **Visualizer Agent (可视化专家)**: 负责结果可视化。生成路径图、收敛曲线、对比图表，并自动嵌入到科研笔记中。
+- **Deployer Agent (部署专家)**: 负责成果转化。将最佳算法封装为独立 Python 模块，生成接口文档并进行压力测试，确保研究成果可直接应用于生产环境。
+
+### 🔄 自主科研工作流 (Autonomous Research Workflow)
+1.  **联网探索**: Master 联合 Librarian 通过 `web_search` 调研 SOTA (Best Known Solutions) 与最新论文思路。
+2.  **种子固化**: 发现优秀实现后，由 Reviewer 审计安全性，随后通过 `add_new_seed` 自动扩充初始种子库。
+3.  **策略注入**: Architect 根据调研结论设计 PRM，通过引导“算法品味”来缩小 LLM 的搜索空间。
+4.  **闭环演化**: 启动 EoH 演化流程，系统根据实时反馈（Fitness, Error Rate）自主决策下一步行动。
+5.  **诊断与纠偏**: 当性能陷入平台期，Analyst 介入诊断，触发 PRM 重构或 Refiner 介入，确保演化持续增益。
+6.  **可视化展示**: 演化完成后，由 Visualizer 生成直观的收敛曲线与路径地图，增强研究结果的可解释性。
+7.  **工业级部署**: 最终由 Deployer 将最优算法打包，实现从科研发现到工程应用的无缝衔接。
 
 ---
 
@@ -32,34 +51,67 @@ user_cvrp_hgs/
  └── visualize_results.py        # 结果分析与可视化脚本
 ```
 
-### 工作流程 (Workflow)
+### 工作流程 (Workflows)
 
-#### 1. 数据准备 (Data Preparation)
-首先，下载 CVRPLib 的基准测试实例。
+#### 基础准备：数据与基准 (Shared Data Preparation)
+无论是哪个版本，首先需要准备实例数据和基准性能数据：
 ```bash
+# 1. 下载 CVRPLib 基准实例
 python v0_baseline/download_cvrplib.py
-```
 
-#### 2. 生成合成训练数据 (Generate Synthetic Training Data - SFT)
-```bash
+# 2. 生成合成训练数据 (SFT) - 可选
 python v0_baseline/generate_synthetic_data.py
-```
 
-#### 3. 生成性能基准数据 (Generate Performance Baseline - RLHF/DPO)
-```bash
+# 3. 生成性能基准数据 (DPO/RLHF)
 python v0_baseline/generate_performance_dataset.py
 ```
 
-#### 4. 运行进化流程 (Run Evolution - EoH)
+#### V0: 基础演化 (Baseline EoH)
+纯粹的 EoH 演化模式，适合初次运行。
 ```bash
 python v0_baseline/runEoH.py
 ```
-*   **运行过程**:
-    1. 加载 `data/` 中的真实实例。
-    2. 评估初始种群的性能 (基于 `heuristics_lib.py`)。
-    3. LLM 生成新的变体代码 (通过 Mutation 变异 / Crossover 交叉算子)。
-    4. 在真实实例上评估新代码。
-    5. 保存性能提升的算法。
+- **核心逻辑**: 加载 `data/` 实例 -> 评估初始种群 -> LLM 生成变体 -> 保存优胜算法。
+
+#### V1: 自动化流水线 (Workflow Automation)
+引入 Master Agent 驱动“分析-演化-精炼”的闭环。
+```bash
+python v1_workflow/master_agent.py
+```
+- **核心逻辑**: KIMI 设计 PRM -> DeepSeek 运行 EoH 演化 -> 分析结果 -> 自动修复 'None' 报错代码 -> 反馈循环。
+
+#### V2.4: 自主 ReAct 智能体 (Intelligent ReAct Agent)
+目前最强大的版本，具备联网调研、多角色协作与严谨质检能力。
+```bash
+python v2_agent/react_master_agent.py
+```
+- **核心逻辑**: 
+    1. **调研**: 通过 `web_search` 在 arXiv/GitHub 寻找灵感。
+    2. **协作**: Architect 与 Coder 通过 `handoff.md` 同步设计意图。
+    3. **演化**: 基于动态 PRM 策略生成高性能代码。
+    4. **质检**: 调用 `run_comprehensive_evaluation` (QT 工具) 进行多实例交叉验证。
+
+#### 📊 性能量化对比 (Benchmark)
+一键对比所有版本的性能表现：
+```bash
+python v2_agent/benchmark_comparison.py
+```
+- **产出**: 控制台对比表格 + `visualizations/performance_comparison_report.png`。
+
+### V2.5: 后训练数据采集 (Post-training Data Collection)
+- **核心逻辑**: 自动收集 (PRM 策略, 架构师思考, 演化轨迹) 三元组数据。
+- **产出**: `v2_agent/training_data/prm_evolution_dataset.jsonl`。
+- **用途**: 用于微调大模型，使其在没有外部反馈的情况下也能直接写出具备“良好算法品味”的 PRM。
+
+### V2.6: 专家团队协同与科研自动化 (Expert Team & Research Automation)
+- **核心逻辑**: 引入“分析-审计-整理”多专家角色，实现全流程科研自动化。
+- **功能**: Master 驱动，Analyst 诊断瓶颈，Reviewer 拦截错误代码，Librarian 结构化知识。
+- **价值**: 显著提升演化效率，实现种子库的自主动态增长。
+
+### V2.7: 可视化报告与工业级部署 (Visualization & Deployment)
+- **核心逻辑**: 增强成果展示与转化能力。
+- **功能**: Visualizer 生成收敛曲线与路径图，Deployer 封装独立 Python 模块。
+- **价值**: 增强研究的可解释性，实现从算法发现到生产应用的无缝闭环。
 
 ### 运行结果示例 (Result Example)
 运行 `generate_performance_dataset.py` 脚本后，会生成 `cvrp_performance_dataset_real.jsonl` 文件。为了避免 README 过长，这里只展示每条记录中的 `metadata` 片段示例：
@@ -104,7 +156,7 @@ CVRP (Capacitated Vehicle Routing Problem) 是 NP-Hard 问题。我们采用 **"
 
 ---
 
-## 📌 版本迭代 (Version History)
+## 📌 大版本迭代 (Version History)
 
 ### V0.0: 数据基础与演化环境 (Data & Evolution Foundation)
 - **核心逻辑**: 建立 CVRP 问题的数学模型与评估环境。
@@ -135,10 +187,26 @@ CVRP (Capacitated Vehicle Routing Problem) 是 NP-Hard 问题。我们采用 **"
 
 ---
 
-## 🚦 如何运行
+## 🚦 如何运行 (How to Run)
 
+### V0: 基础演化 (Baseline)
 ```bash
 python v0_baseline/runEoH.py
+```
+
+### V1: 自动化流水线 (Workflow)
+```bash
+python v1_workflow/master_agent.py
+```
+
+### V2.0版本: 自主 ReAct 智能体 (Agent)
+```bash
+python v2_agent/react_master_agent.py
+```
+
+### 📊 性能对比测试 (Benchmark)
+```bash
+python v2_agent/benchmark_comparison.py
 ```
 
 ---
@@ -215,3 +283,56 @@ python v0_baseline/runEoH.py
         ↓
     Action: install_missing_package | package_name: "matplotlib"
     ```
+
+### V2.4: 工程化与多角色协作增强 (Engineering & Multi-Agent Collaboration)
+- **更新时间**: 2026-03-22
+- **文件改动**:
+    - [v2_agent/handoff.md](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/handoff.md): 新增交接文档，用于记录 Architect 到 Coder 的设计意图与技术约束。
+    - [v2_agent/SKILLS.md](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/SKILLS.md): 新增技能描述文件，实现工具调用的插件化管理。
+    - [v2_agent/react_tools.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_tools.py):
+        - 新增 `update_handoff` 和 `read_handoff` 工具，支持角色间的信息传递。
+        - 新增 `run_comprehensive_evaluation` (QT 工具)，支持在多个代表性实例上进行全面评估并生成 Markdown 报告。
+    - [v2_agent/react_master_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_master_agent.py):
+        - 升级 System Prompt，支持 Memory, Plan, Research Notes, Handoff 四种知识源。
+        - 实现动态加载 `SKILLS.md` 注入 Prompt，提升智能体对自身能力的认知。
+
+- **功能升级**:
+    - **Handoff 机制**: 建立了正式的角色间沟通渠道，确保设计意图（PRM 逻辑等）在不同 Agent 间准确传递。
+- **QT (质量门禁)**: 引入了多实例交叉验证机制，算法不再只针对单一实例优化，提升了泛化性能。
+- **技能插件化**: 工具描述与代码实现解耦，使得 Prompt 更加整洁且易于维护。
+
+### V2.5: 数据闭环与训练数据采集 (Data Loop & Collection)
+- **更新时间**: 2026-03-22
+- **核心逻辑**: 实现演化数据的自动采集，用于大模型的后训练 (Post-training)。
+- **产出**: `v2_agent/training_data/prm_evolution_dataset.jsonl`，用于微调模型以获取更佳的“算法品味”。
+
+
+
+### V2.6: 专家团队协同与科研自动化 (Expert Team & Research Automation)
+- **更新时间**: 2026-03-23
+- **核心逻辑**: 引入了更细分的研究员角色，形成“分析-审计-整理”的科研全流程自动化。
+- **文件改动**:
+    - [analyst_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/analyst_agent.py): **分析专家**。深度剖析演化轨迹，诊断收敛瓶颈，为 Master 提供战略决策支持。
+    - [reviewer_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/reviewer_agent.py): **质检专家**。对生成的代码进行静态扫描和 Mock 运行测试，拦截死循环和规范性错误。
+    - [librarian_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/librarian_agent.py): **知识库管理员**。利用 LLM 将零散的 `research_notes.md` 提炼为结构化的知识库。
+    - [v2_agent/react_tools.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_tools.py): 
+        - 集成 `run_deep_analysis` 工具。
+        - 集成 `run_code_review` 工具，作为代码入库前的强制门禁。
+        - 集成 `organize_research_notes` 工具，实现笔记自动格式化。
+        - 增强 `add_new_seed`，支持智能体从外部搜索结果中提取并固化优秀算法。
+- **功能升级**:
+    - **全自动科研闭环**: 从联网搜索、代码提取、质检审计到演化优化，实现了全流程的闭环。
+    - **种子库动态增长**: 智能体现在可以像人类研究员一样，在搜索到好论文或好代码后，将其手动（通过工具）转化为自己的种子库。
+    - **高效率进化**: 通过 Reviewer Agent 拦截无效代码，节省了大量的硬件评估资源。
+
+### V2.7: 可视化专家与部署专家 (Visualizer & Deployer Agents)
+- **更新时间**: 2026-03-24
+- **文件改动**:
+    - [visualizer_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/visualizer_agent.py): **可视化专家**。负责生成收敛曲线、路径轨迹图，并将图片自动嵌入科研笔记。
+    - [deployer_agent.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/deployer_agent.py): **部署专家**。将最佳算法封装为独立的 Python 模块，生成 README 文档并进行压力测试。
+    - [v2_agent/react_tools.py](file:///c:/Users/24294/.trae/Agent_EOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_tools.py): 
+        - 集成 `generate_visual_report` 工具。
+        - 集成 `deploy_best_algorithm` 工具。
+- **功能升级**:
+    - **成果直观化**: 科研结论不再只是枯燥的 Fitness 数值，而是包含直观的可视化图表。
+    - **工程化落地**: 实现了从演化算法到独立模块的自动化转换，支持工业级调用。
