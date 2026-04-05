@@ -2,26 +2,57 @@
 
 本项目 (V2.7) 旨在利用大语言模型 (LLM) 的推理能力与 **EoH (Evolution of Heuristics)** 框架深度融合，构建一个具备“自主科学发现”能力的专家团队。系统通过 **ReAct (Reasoning-Acting)** 框架驱动，实现了车辆路径问题 (CVRP) 算法的联网调研、架构设计、静态审计、演化诊断、可视化报告及工业级部署。
 
-### 🤖 核心专家团队 (Agent Ecosystem)
+***
 
-- **Master Agent (总控专家)**: 采用 ReAct 循环，负责全局任务拆解、目标设定与跨 Agent 调度。
-- **Librarian Agent (知识库管理员)**: 负责结构化管理 `research_notes.md`，从海量搜索结果中提炼 SOTA 榜单与算法算子库。
-- **Architect Agent (算法架构师)**: 基于演化反馈，动态设计过程奖励模型 (PRM) 并注入评估环境，引导进化方向。
-- **Reviewer Agent (质检专家)**: 执行代码门禁。在算法入库前进行静态扫描与 Mock 运行，拦截死循环与逻辑缺陷。
-- **Analyst Agent (性能分析专家)**: 深度剖析演化轨迹，识别收敛瓶颈与种群多样性，为系统提供战略性调整建议。
-- **Refiner Agent (调优专家)**: 针对性能不佳或报错的代码，利用逻辑推理能力进行最小化修复与精细化重构。
-- **Visualizer Agent (可视化专家)**: 负责结果可视化。生成路径图、收敛曲线、对比图表，并自动嵌入到科研笔记中。
-- **Deployer Agent (部署专家)**: 负责成果转化。将最佳算法封装为独立 Python 模块，生成接口文档并进行压力测试，确保研究成果可直接应用于生产环境。
+## 🛠️ 环境要求 (Requirements)
 
-### 🔄 自主科研工作流 (Autonomous Research Workflow)
+- Python 3.8+
+- `numpy`
+- `requests`
+- `scipy` (可选)
 
-1. **联网探索**: Master 联合 Librarian 通过 `web_search` 调研 SOTA (Best Known Solutions) 与最新论文思路。
-2. **种子固化**: 发现优秀实现后，由 Reviewer 审计安全性，随后通过 `add_new_seed` 自动扩充初始种子库。
-3. **策略注入**: Architect 根据调研结论设计 PRM，通过引导“算法品味”来缩小 LLM 的搜索空间。
-4. **闭环演化**: 启动 EoH 演化流程，系统根据实时反馈（Fitness, Error Rate）自主决策下一步行动。
-5. **诊断与纠偏**: 当性能陷入平台期，Analyst 介入诊断，触发 PRM 重构或 Refiner 介入，确保演化持续增益。
-6. **可视化展示**: 演化完成后，由 Visualizer 生成直观的收敛曲线与路径地图，增强研究结果的可解释性。
-7. **工业级部署**: 最终由 Deployer 将最优算法打包，实现从科研发现到工程应用的无缝衔接。
+***
+
+## 🚦 如何运行 (How to Run)
+
+### V0: 基础演化 (Baseline)
+
+```bash
+python v0_baseline/runEoH.py
+```
+
+### V1: 自动化流水线 (Workflow)
+
+```bash
+python v1_workflow/master_agent.py
+```
+
+### V2.0版本: 自主 ReAct 智能体 (Agent)
+
+```bash
+python v2_agent/react_master_agent.py
+```
+
+### V3.0版本: 结构化流水线与可复盘账本 (Agent)
+
+```bash
+python v3_agent/react_master_agent.py
+```
+
+**新增产物（v3\_agent 独立）**:
+
+# `v3_agent/state/tasks.json`: 5 阶段任务树（survey/design/evolve/validate/package）
+
+- `v3_agent/state/project_truth.md`: 工程事实 + 论文叙事的共享真相面
+- `v3_agent/state/session_context.md`: 会话上下文快照（启动必读）
+- `v3_agent/logs/evolution_ledger.jsonl`: 一次进化（一次 EVOL 调用）一条记录
+- `v3_agent/logs/review_log.md`: Reviewer 门禁记录
+
+### 📊 性能对比测试 (Benchmark)
+
+```bash
+python v2_agent/benchmark_comparison.py
+```
 
 ***
 
@@ -117,16 +148,7 @@ python v2_agent/react_master_agent.py
 python v3_agent/react_master_agent.py
 ```
 
-**新增产物（v3\_agent 独立）**:
-
-# `v3_agent/state/tasks.json`: 5 阶段任务树（survey/design/evolve/validate/package）
-
-- `v3_agent/state/project_truth.md`: 工程事实 + 论文叙事的共享真相面
-- `v3_agent/state/session_context.md`: 会话上下文快照（启动必读）
-- `v3_agent/logs/evolution_ledger.jsonl`: 一次进化（一次 EVOL 调用）一条记录
-- `v3_agent/logs/review_log.md`: Reviewer 门禁记录
-
-#### 📊 性能量化对比 (Benchmark)
+#### � 性能量化对比 (Benchmark)
 
 一键对比所有版本的性能表现：
 
@@ -170,6 +192,29 @@ python v2_agent/benchmark_comparison.py
   }
 }
 ```
+
+***
+
+### 🤖 核心专家团队 (Agent Ecosystem)
+
+- **Master Agent (总控专家)**: 采用 ReAct 循环，负责全局任务拆解、目标设定与跨 Agent 调度。
+- **Librarian Agent (知识库管理员)**: 负责结构化管理 `research_notes.md`，从海量搜索结果中提炼 SOTA 榜单与算法算子库。
+- **Architect Agent (算法架构师)**: 基于演化反馈，动态设计过程奖励模型 (PRM) 并注入评估环境，引导进化方向。
+- **Reviewer Agent (质检专家)**: 执行代码门禁。在算法入库前进行静态扫描与 Mock 运行，拦截死循环与逻辑缺陷。
+- **Analyst Agent (性能分析专家)**: 深度剖析演化轨迹，识别收敛瓶颈与种群多样性，为系统提供战略性调整建议。
+- **Refiner Agent (调优专家)**: 针对性能不佳或报错的代码，利用逻辑推理能力进行最小化修复与精细化重构。
+- **Visualizer Agent (可视化专家)**: 负责结果可视化。生成路径图、收敛曲线、对比图表，并自动嵌入到科研笔记中。
+- **Deployer Agent (部署专家)**: 负责成果转化。将最佳算法封装为独立 Python 模块，生成接口文档并进行压力测试，确保研究成果可直接应用于生产环境。
+
+### 🔄 自主科研工作流 (Autonomous Research Workflow)
+
+1. **联网探索**: Master 联合 Librarian 通过 `web_search` 调研 SOTA (Best Known Solutions) 与最新论文思路。
+2. **种子固化**: 发现优秀实现后，由 Reviewer 审计安全性，随后通过 `add_new_seed` 自动扩充初始种子库。
+3. **策略注入**: Architect 根据调研结论设计 PRM，通过引导“算法品味”来缩小 LLM 的搜索空间。
+4. **闭环演化**: 启动 EoH 演化流程，系统根据实时反馈（Fitness, Error Rate）自主决策下一步行动。
+5. **诊断与纠偏**: 当性能陷入平台期，Analyst 介入诊断，触发 PRM 重构或 Refiner 介入，确保演化持续增益。
+6. **可视化展示**: 演化完成后，由 Visualizer 生成直观的收敛曲线与路径地图，增强研究结果的可解释性。
+7. **工业级部署**: 最终由 Deployer 将最优算法打包，实现从科研发现到工程应用的无缝衔接。
 
 ***
 
@@ -222,49 +267,6 @@ CVRP (Capacitated Vehicle Routing Problem) 是 NP-Hard 问题。我们采用 **"
 - **关键文件**:
   - [v2\_agent/react\_master\_agent.py](file:///c:/Users/24294/.vscode/EEOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_master_agent.py): V2 智能体主程序。
   - [v2\_agent/react\_tools.py](file:///c:/Users/24294/.vscode/EEOH/eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_tools.py): 智能体工具箱。
-
-***
-
-## 🛠️ 环境要求 (Requirements)
-
-- Python 3.8+
-- `numpy`
-- `requests`
-- `scipy` (可选)
-
-***
-
-## 🚦 如何运行 (How to Run)
-
-### V0: 基础演化 (Baseline)
-
-```bash
-python v0_baseline/runEoH.py
-```
-
-### V1: 自动化流水线 (Workflow)
-
-```bash
-python v1_workflow/master_agent.py
-```
-
-### V2.0版本: 自主 ReAct 智能体 (Agent)
-
-```bash
-python v2_agent/react_master_agent.py
-```
-
-### V3.0版本: 结构化流水线与可复盘账本 (Agent)
-
-```bash
-python v3_agent/react_master_agent.py
-```
-
-### 📊 性能对比测试 (Benchmark)
-
-```bash
-python v2_agent/benchmark_comparison.py
-```
 
 ***
 
