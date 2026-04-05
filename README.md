@@ -33,17 +33,36 @@
 
 ```
 Agent_EOH/
-└── eoh/src/eoh/examples/user_cvrp_hgs/
-    ├── v0_baseline/           # V0: 基础演化框架
-    ├── v1_workflow/           # V1: 自动化流水线
-    ├── v2_agent/              # V2: ReAct 自主智能体 ⭐
-    │   ├── react_master_agent.py    # 智能体主程序
-    │   ├── react_tools.py           # 工具箱
-    │   ├── research_notes.md        # 知识积累
-    │   └── config.json.example      # 配置模板
-    ├── data/                  # CVRP 实例数据
-    └── README.md              # 详细文档
+├── eoh/                               # EoH 框架（Python 包）
+│   ├── setup.py
+│   └── src/eoh/
+│       ├── llm/                       # LLM 接口与 API 适配层
+│       ├── llm_local_server/          # 本地 LLM Server 启动脚本
+│       ├── methods/                   # 演化/局部搜索/选择等方法实现
+│       ├── problems/                  # 问题定义与评测（optimization / ML）
+│       ├── utils/                     # 报告生成、结果处理、参数解析等
+│       ├── test/                      # 运行/自测脚本
+│       └── examples/
+│           ├── user_cvrp_hgs/          # CVRP：V0→V3 的演进示例 ⭐
+│           │   ├── v0_baseline/        # V0：基础演化
+│           │   ├── v1_workflow/        # V1：自动化流水线
+│           │   ├── v2_agent/           # V2：ReAct 自主智能体
+│           │   └── v3_agent/           # V3：进一步增强版本
+│           ├── user_genroute_go/       # GenRoute（Go）示例
+│           └── user_insertships_go/    # InsertShips（Go）示例
+├── examples/                          # 顶层示例（bp_online / tsp_construct 等）
+├── baseline/                          # 其他基线（如 funsearch）
+├── solomon_benchmarks/                # Solomon VRPTW 基准数据与脚本
+├── docs/                              # 项目文档与图表
+└── results/                           # 运行结果（通常不纳入版本控制）
 ```
+
+### 🔑 关键入口
+
+- CVRP（V2 ReAct 智能体）入口：`eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_master_agent.py`
+- CVRP（V2 工具集合）：`eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/react_tools.py`
+- CVRP 配置模板：`eoh/src/eoh/examples/user_cvrp_hgs/v2_agent/config.json.example`（复制为 `config.json` 后填入 Key）
+- EoH 框架主逻辑入口：`eoh/src/eoh/eoh.py` 与 `eoh/src/eoh/methods/`
 
 ---
 
