@@ -1,0 +1,258 @@
+=== Logging to: C:\Users\24294\.trae\Agent_EOH\eoh\src\eoh\examples\user_genroute_go\v2_agent\run_logs\full_v2_genroute_planning2.log ===
+=== Start time: 2026-04-01 21:31:57 ===
+=== Starting Autonomous Agent (Agent) with Goal: 'Follow the strategy strictly: 1) read_plan; 2) read_memory; 3) read_research_notes; if missing then web_search query='Solomon VRPTW insertion heuristic I1 regret criteria time oriented'; 4) generate_seeds_from_research query='Solomon VRPTW insertion heuristic I1 regret criteria time oriented'; 5) run_code_review seed_path='v2_agent/seeds_genroute_go_research.json' seed_index=4; 6) run_evolution generations=2 max_instances=8 sim_time_multi=1000000 seed_path='v2_agent/seeds_genroute_go_research.json' pop_size=4; 7) run_comprehensive_evaluation sim_time_multi=1000000; 8) write_report sim_time_multi=1000000; 9) update_memory with a short summary; 10) finish' ===
+
+--- Loop 1/8 ---
+Thought: I am an Autonomous AI Research Scientist specializing in Evolutionary Heuristics. My primary mission is to implement a Go method `func (assign *Assign) GenRoute()`. Following the strict strategy, I need to start by reading the plan and memory to understand current targets and constraints, then check research notes for existing knowledge. Since this is my first action, I'll begin with read_plan to see what's already planned.
+Observation: # Agent Strategic Plan
+
+## Current Goal
+- Improve Solomon benchmark average cost on rc101–rc108 compared to Archive_extracted/final_result.txt baseline.
+
+## Baseline
+- Baseline avg cost (rc101–rc108): 206.415358
+
+## Current Sub-tasks
+- [ ] Read MEMORY.md and PLAN.md at the start of every run
+- [ ] Use web_search / research_notes.md to find actionable operator ideas
+- [ ] Convert research into concrete Go GenRoute seed candidates (compile-safe)
+- [ ] Run code review (compile+smoke) before adding any new seed
+- [ ] Run evolution on 8 instances (rc101–rc108) and evaluate deltas
+- [ ] Write a report and update MEMORY.md with what worked/failed
+
+## Notes
+- GenRoute has limited leverage; if no improvement is observed after several attempts, pivot to other operators (InsertShips / Optimization / RoutingTS).
+
+
+
+--- Loop 2/8 ---
+Thought: I have read the plan. The current goal is to improve Solomon benchmark average cost on rc101–rc108 compared to a baseline of 206.415358. The plan outlines sub-tasks including reading memory and research notes, searching for operator ideas, generating seeds, running code review, evolution, and evaluation. Since this is the first step after reading the plan, I should now read memory to understand past actions and constraints.
+Observation: # Agent Memory
+
+## Facts
+- Evaluation compiles a temporary Go binary from Archive_extracted/main.go + routing.go, replaces GenRoute, then runs rc101–rc108 and parses `final cost`.
+- Baseline values match Archive_extracted/final_result.txt exactly (avg 206.415358).
+
+## Constraints
+- Candidate GenRoute code must be a single Go method definition:
+  - `func (assign *Assign) GenRoute() { ... }`
+- Must compile with the existing structs:
+  - Route is a fixed-size array, not a slice.
+- Unsafe NextSta/NextTime updates can break simulation and cause large penalties.
+
+## Working Heuristics
+- Keep GenRoute minimal: GenSeq() then RoutingTS(&assign.RoutingTask) and update NextSta/NextTime only if Cost >= 0.
+
+## Open Questions
+- Which operator gives the most leverage beyond GenRoute for this codebase (InsertShips vs Optimization vs RoutingTS)?
+
+
+
+--- Loop 3/8 ---
+Thought: I have read the plan and memory. The plan sets the goal to improve the Solomon benchmark average cost on rc101–rc108 from a baseline of 206.415358. Memory provides key constraints: the GenRoute method must be a single Go method definition, compile with existing structs (Route as a fixed-size array), and avoid unsafe NextSta/NextTime updates to prevent penalties. It also notes that GenRoute should be minimal, using GenSeq() and RoutingTS, and updating NextSta/NextTime only if Cost >= 0. Since research notes are mentioned in the strategy, I should read them next to see if there's existing knowledge on Solomon VRPTW insertion heuristics like I1 regret criteria time-oriented, which could inform seed generation. If research notes are missing, I'll need to web search for this topic.
+Observation: 
+## Research: VRPTW Solomon insertion heuristic update next event time NextSta NextTime route recompute safe patterns
+*Timestamp: 2026-04-01 21:02:34*
+
+### 1. [[PDF] Vehicle Routing Problem with Time Windows, Part I - CEPAC](https://cepac.cheme.cmu.edu/pasi2011/library/cerda/braysy-gendreau-vrp-review.pdf)
+Rousseau (1993) introduce a parallel version of Solomon’s insertion heuristic I1, where the set of m routes is initialized at once. The authors use Solomon’s sequential insertion heuristic to determine the initial number of routes and the set of seed customers. The selection of the next customer to be inserted is based on a generalized regret measure over all routes. A large regret measure means that there is a large gap between the best insertion place for a customer and its best insertion places in the other routes. (6) . [...] The author introduces new time insertion criteria to solve the problem and concludes that the new criteria offer significant cost savings starting from more than 50%. These cost savings, however, decrease as the number of customers per route increases. The time oriented sweep heuristic of Solomon (1987) is based on the idea of decomposing the problem into a clustering stage and a scheduling stage. In the first phase, customers are assigned to vehicles as in the original sweep heuristic (Gillett and Miller 1974). Here a “center of gravity” is computed and the customers are partitioned according to their polar angle. In the second phase customers assigned to a vehicle are scheduled using an insertion heuristic of type I1. Potvin and Rousseau (1993) introduce a parallel version of Solomon’s [...] time required to visit the customer by the current vehicle. The second type of the proposed insertion heuristics (I2) aims to select customers whose insertion costs minimize a measure of total route distance and time and the third approach (I3) accounts for the urgency of servicing a customer. Dullaert (2000a and 2000b) argues that Solomon’s time insertion criterion ) , , ( 12 j u i c underestimates the additional time needed to insert a new customer u between the depot and the first customer in the partially constructed route. This can cause the insertion criterion to select suboptimal insertion places for unrouted customers. Thus, a route with a relatively small number of customers can have a larger schedule time than necessary. The author introduces new time insertion criteria to solve
+
+### 2. [[PDF] Improving on the initial solution heuristic for the Vehicle Routing ...](https://www.witpress.com/Secure/elibrary/papers/UT04/UT04022FU.pdf)
+2 Time window compatibility Under Solomon’s  sequential insertion heuristic, initialization criteria refers to the process of ﬁnding the ﬁrst customer to insert into a route. The most com-monly used initialization criteria is the farthest unrouted customer, and the cus-tomer with the earliest deadline, or the earliest latest allowed arrival. The ﬁrst customer inserted on a route is referred to as the seed customer. Once the seed cus-tomer has been identiﬁed and inserted, the sequential insertion heuristic algorithm considers, for the unrouted nodes, the insertion place that minimizes a weighted average of the additional distance and time needed to include a customer in the current partially constructed route. This second step is referred to as the inser-tion criteria, and involves savings [...] 4 Results Solomon  discusses the generation of data sets for the Vehicle routing and scheduling problems with time window constraints (VRPSTW), and indicates that the design of these data sets highlight several factors that affects the behavior of his routing and scheduling heuristics. The corresponding six data sets, referred to as R1, R2, C1, C2, RC1, and RC2, are often used and referred to in literature. [...] F.-H. Liu and S.-Y. Shen. A method for Vehicle Routing Problem with Multiple Vehicle Types and Time Windows. Proceedings of the National Science Council, Republic of China, ROC(A), 23(4):526–536, 1999.
+ M.M. Solomon. Algorithms for the vehicle routing and scheduling problems with time windows. Operations Research, 35(2):254–265, 1987.
+ M.M. Solomon. VRPTW benchmark problems. World wide web at  msolomon/problems.htm, June 2003.
+ K.C. Tan, L.H. Lee, Q.L. Zhu, and K. Ou. Heuristic methods for vehicle routing problem with time windows. Artiﬁcial Intelligence in Engineering, 15:281–295, 2001.
+ A. Van Breedam. Comparing descent heuristics and metaheuristics for the vehicle routing problem. Computers and Operations Research, 28:289–315, 2001.
+
+### 3. [Solving the Vehicle Routing Problem with Time Windows Using ...](https://www.mdpi.com/2227-7390/12/11/1702)
+Meta-heuristics demonstrate the capability to effectively handle additional constraints and generate nearly optimal solutions for pathfinding within a reasonable computational timeframe, applicable to networks of varying scales. Meta-heuristic approaches such as GA, PSO, and ACO algorithms have been extensively utilized in addressing shortest path problems across diverse research domains. For instance, Ayesha et al. (2024) present an innovative Hybrid Genetic Algorithm–Solomon Insertion Heuristic (HGA-SIH) solution, enhanced by the robust Solomon insertion constructive heuristic for solving the NP-hard VRPTW problem . Khoo et al. (2021) introduce a genetic algorithm specifically tailored for tackling the multi-objective vehicle routing problem with time windows (MOVRPTW). This specialized [...] VRPTW solutions . Subsequently, Baker et al. (2003) built upon this foundation, introducing path construction heuristics specifically designed for VRPTW . Solomon (1987) further developed the Push Forward Insertion Heuristic (PFIH), which explores improved solutions by considering time windows and inter-node distances . However, these methods still face the risk of getting trapped in local optima, especially when dealing with large-scale problems. To overcome this limitation, Potvin et al. (1993) introduced a heuristic approach that simultaneously constructs multiple paths, aiming to achieve optimal distribution plans by re-planning the farthest points from the distribution center . Building upon this, Antes et al. (1995) proposed a novel method that incorporates a “reward” mechanism, [...] is known as the farthest insertion heuristic . The process continues iteratively until all customers in S have been successfully reinstated into the partial solution . The process is more time-consuming on a broader scope.
+
+### 4. [[PDF] Insertion Heuristics for a Class of Dynamic Vehicle Routing Problems](https://optimization-online.org/wp-content/uploads/2022/11/dynamic-insertion.pdf)
+In this paper, we consider one specific dynamic situation, in which cus-tomer requests arrive one at a time, and the routes must be constructed as the requests come in. In this context, it is natural to use insertion heuristics.
+The idea of such a heuristic is that we start with a collection of “empty” routes, and then iteratively attempt to insert each new customer into one of the routes.
+∗STOR-i Centre for Doctoral Training, Lancaster University, Lancaster LA1 4YR, UK.
+E-mail: M.Randall1@lancaster.ac.uk †Department of Management Science, Lancaster University, Lancaster LA1 4YX, UK.
+E-mail: {A.Kheiri,A.N.Letchford}@lancaster.ac.uk 1 Insertion heuristics were first introduced for the TSP , and then extended to the VRP with time windows by Solomon . [...] The idea is as follows. If it is possible to insert a customer into the first route, we do so. Otherwise, we check whether the customer can be inserted into the second route. If it is possible, we do so. And so on. The process continues until the end of the ordering period. If there are several possible insertion points in any given epoch, we again choose the point which leads to the smallest increase in the length of the given route. [...] 3.1 Sequential insertion In sequential insertion, the vehicles are filled one at a time. We allocate as many customers as possible to vehicle i = 1, until we encounter a customer that cannot be inserted into the route of that vehicle (due to capacity or distance constraints). From that point, we allocate as many customers as possible to vehicle i = 2, and so on. The process continues until (a) there are no more vehicles available or (b) the ordering period has ended. (In the case of the DDVRP, we disregard any customers that cannot possibly appear on any route, i.e., any customer e for which 2d (0, e) > D).
+
+### 5. [[PDF] A Heuristic for the Vehicle Routing Problem with Tight Time ... - POMS](https://pomsmeetings.org/ConfProceedings/060/Full%20Papers/Final%20Full%20papers/060-0155.pdf)
+seed while considering the assigned total demand does not exceed the vehicle capacity. Then, vehicle routes are generated by inserting each customer with a minimum insertion cost. Moreover, Renaud et al.,(1996a; 1996b) developed petal algorithms which are the extensions of sweep algorithms that consists of construction of an initial envelope, insertion of the remaining vertices, and improvement procedure. Briefly, several routes are generated called petals and final decision is made by solving a set portioning problem. Although in 2000’s, meta-heuristics are widely applied to solve VRPs with time windows constraints, several heuristics were also developed to find near-optimal solutions. Dullaert et al., (2002) extended Solomon’s (1987) sequential insertion heuristic with vehicle insertion [...] Operations Management Society Conference 3 Solomon (1987) proposed a minimum cost of insertion technique. In this technique, after clustering is performed and feasible tours are constructed, a decision is made whether switching a customer from one tour to another is advantageous in terms of distance or cost. Gillet and Miller (1974) proposed a sweep algorithm consists of two stages, clustering and route generation. At the clustering stage, all nodes are clustered based on their capacity. In goods delivery vehicle routing, capacity is the maximum number of goods that can be carried in serving a route. In this case, the maximum number of goods carried by the vehicle depends on the capacity of the vehicle itself. The Fisher and Jaikumar (1981) algorithm is well-known cluster-first, [...] In this paper, a new hybrid heuristic approach for VRPTW is proposed by simultaneously considering clustering and savings algorithms where customers are clustered and segmented based on their time-windows. Also, driving times and working times are individually considered. Our proposed hybrid heuristic is compared with the previously available mathematical models in the literature. The organization of the paper is as follows; Section 2 briefly discusses the literature about heuristics Proceedings of 26th Annual Production and Operations Management Society Conference 2 and the VRP. Section 3 details the problem description, Section 4 describes the heuristic, Section 5 presents the experimentation results and a brief discussion on the results, and Section 6 gives a review of conclusions and
+
+
+---
+
+## Research: Go VRPTW routing operator GenRoute update NextSta NextTime safe patterns
+*Timestamp: 2026-04-01 21:06:25*
+
+### 1. [Vehicle Routing Problem with Time Windows: Complete Guide to ...](https://mbrenndoerfer.com/writing/vehicle-routing-problem-time-windows-vrptw-optimization-guide)
+The Vehicle Routing Problem with Time Windows (VRPTW) is a fundamental optimization challenge in logistics and supply chain management. At its core, VRPTW seeks to determine the most efficient routes for a fleet of vehicles to serve a set of customers, where each customer must be visited within a specific time window. This problem extends the classic Vehicle Routing Problem (VRP) by incorporating temporal constraints that reflect real-world delivery scenarios where customers have preferred or required service times. [...] Modern VRPTW solvers can handle problems with hundreds of customers and dozens of vehicles, making them suitable for real-world applications. The solutions can be updated dynamically as new orders arrive or conditions change, allowing dispatchers to respond to evolving circumstances throughout the day. This scalability and adaptability make VRPTW a practical tool for both strategic route planning and day-to-day operational decisions.
+
+### DisadvantagesLink Copied [...] The VRPTW is particularly relevant in modern logistics operations, from e-commerce delivery to field service management. Unlike simple routing problems that only consider distance or travel time, VRPTW must balance multiple competing objectives: minimizing total travel cost, respecting vehicle capacity constraints, and ensuring all customers are served within their specified time windows. This makes it a complex combinatorial optimization problem that often requires sophisticated algorithms to solve efficiently.
+
+### 2. [Vehicle Routing Problem with Time Windows (VRPTW) Solver ...](https://github.com/arnobt78/Vehicle-Routing-Problem-Time-Windows-Solver-Comparison--VRPTW-Python-React)
+For step-by-step run instructions see RUN.md; for production deployment see DEPLOYMENT.md. For deep dives into algorithms and parameters see backend/README.md.
+
+This project is licensed under the MIT License. Feel free to use, modify, and distribute the code as per the terms of the license.
+
+## Happy Coding! 🎉
+
+This is an open-source project - feel free to use, enhance, and extend this project further!
+
+If you have any questions or want to share your work, reach out via GitHub or my portfolio at .
+
+Enjoy building and learning! 🚀
+
+Thank you! 😊
+
+## About [...] Educational goals: Learn metaheuristics, compare algorithms on standard benchmarks, reuse components and API patterns in other projects.
+
+## Features & Functionalities [...] ```
+
+### 3. [Nextmv nextroute VRP solver - GitHub](https://github.com/nextmv-io/nextroute)
+## License
+
+Please note that Nextroute is provided as source-available software (not
+open-source). For further information, please refer to the LICENSE
+file.
+
+## Installation
+
+Go
+
+Install the Go package with the following command:
+
+Python
+
+Install the Python package with the following command:
+
+## Usage
+
+For further information on how to get started, features, deployment, etc.,
+please refer to the official
+documentation.
+
+### Go
+
+A first run can be done with the following command. Stand at the root of the
+repository and run:
+
+This will run the solver for 5 seconds and output the result to the console.
+
+In order to start a new project, please refer to the sample app in the
+community-apps repository.
+If you have Nextmv CLI
+installed, you can create a new project with the following command: [...] | model\_expression\_composed.go | | model\_expression\_composed.go |  |  |
+| model\_expression\_custom.go | | model\_expression\_custom.go |  |  |
+| model\_expression\_duration.go | | model\_expression\_duration.go |  |  |
+| model\_expression\_haversine.go | | model\_expression\_haversine.go |  |  |
+| model\_expression\_measure\_byindex.go | | model\_expression\_measure\_byindex.go |  |  |
+| model\_expression\_measure\_bypoint.go | | model\_expression\_measure\_bypoint.go |  |  |
+| model\_expression\_sum.go | | model\_expression\_sum.go |  |  |
+| model\_expression\_time.go | | model\_expression\_time.go |  |  |
+| model\_expression\_time\_dependent.go | | model\_expression\_time\_dependent.go |  |  | [...] | model\_constraint\_maximum\_stops.go | | model\_constraint\_maximum\_stops.go |  |  |
+| model\_constraint\_maximum\_stops\_test.go | | model\_constraint\_maximum\_stops\_test.go |  |  |
+| model\_constraint\_maximum\_test.go | | model\_constraint\_maximum\_test.go |  |  |
+| model\_constraint\_maximum\_travel\_duration.go | | model\_constraint\_maximum\_travel\_duration.go |  |  |
+| model\_constraint\_maximum\_wait\_stop.go | | model\_constraint\_maximum\_wait\_stop.go |  |  |
+| model\_constraint\_maximum\_wait\_stop\_test.go | | model\_constraint\_maximum\_wait\_stop\_test.go |  |  |
+| model\_constraint\_maximum\_wait\_vehicle.go | | model\_constraint\_maximum\_wait\_vehicle.go |  |  |
+
+### 4. [Selected Genetic Algorithms for Vehicle Routing Problem Solving](https://www.mdpi.com/2079-9292/10/24/3147)
+The first effective implementation of the genetic algorithm for VRPTW was proposed by . The authors described the GENEtic ROUting System (GENEROUS), which was based on a natural evolution paradigm. Using this paradigm, a population of solutions evolved from one generation to the next to form new offspring solutions, with the use of “mating” parent solutions, that exhibited characteristics inherited from the parents. The specialized methodology was devised for merging two vehicle routing solutions into a single solution that was likely to be feasible with respect to the time window constraints. [...] The Vehicle Routing Problem (VRP) is a generic name given to a set of problems in which a set of routes for a fleet of vehicles based on one or several depots are to be formed to serve the customers dispersed geographically. The objective of the VRP is to form a route with the lowest cost to serve all customers. [...] This paper discusses the usage of genetic algorithms for the vehicle routing problem. The genetic algorithm, as an algorithm of natural selection, searches space for an approximate solution to problems with multiple solutions. One of the applications is the search for the optimal path; here, it is a more complex problem, as the limitations of route selection defined in the VRP problem are imposed. The paper analyzes the influence of genetic operators on the efficiency of the algorithm, demonstrating their influence on the search for a solution.
+
+### 5. [[PDF] Hybrid Genetic Search for the Vehicle Routing Problem with Time ...](https://wouterkool.github.io/pdf/paper-kool-hgs-vrptw.pdf)
+The RELOCATE operator tries to move a node from one route to the best position in the other route. Worst case, this operator considers all RELOCATE moves thus the operator is O(n2). The SWAP operator aims to exchange two nodes between the two routes, inserting them in the best position in the other route. For the CVRP, the SWAP operator is exact in the sense that it always finds the best move, which is achieved efficiently (in overall O(n2) computation) by precomputing the top 3 insertion positions (based on distance) for each node in the other route. After removing another node, the best insertion position is still one of the top 3 positions, or the position of the removed node, so we can safely ignore all other positions. With time windows, this property is not guaranteed, but we can [...] 2.1 Supporting time windows To support time windows, we follow the original HGS paper for VRPTW . With time windows, a vehicle must arrive at a customer between an earliest and latest arrival time, after which it requires a certain service time before it can continue to the next customer. Following , we implement the time-warp principle , which lets the vehicle ‘travel back in time’ to the latest arrival time if it arrives too late at a customer. The total time-warp is multiplied by a penalty weight and added to the objective. The time-warp penalty weight is initialized at 1 and adjusted every 100 iterations, similarly to the capacity penalty: it is increased by 20% if less than 15% of solutions resulting from the local search is feasible (w.r.t. time windows) and decreased by 15% if more [...] Hybrid Genetic Search for the Vehicle Routing Problem with Time Windows: a High-Performance Implementation Wouter Kool Joep Olde Juninck Ernst Roos Kamiel Cornelissen Pim Agterberg Jelke van Hoorn Thomas Visser ORTEC Email of Corresponding Author: wouter.kool@ortec.com Abstract: This paper describes a high-performance implementation of Hybrid Genetic Search (HGS) for the Vehicle Routing Problem with Time Windows (VRPTW) .
+
+
+---
+
+## Research: Solomon VRPTW insertion heuristic criteria regret dynamic routing update next event time
+*Timestamp: 2026-04-01 21:30:33*
+
+### 1. [[PDF] Insertion Heuristics for a Class of Dynamic Vehicle Routing Problems](https://optimization-online.org/wp-content/uploads/2022/11/dynamic-insertion.pdf)
+Insertion Heuristics for a Class of Dynamic Vehicle Routing Problems Matthew Randall∗ Ahmed Kheiri† Adam N. Letchford† November 2022 Abstract We consider a simple family of dynamic vehicle routing problems, in which we have a fixed fleet of identical vehicles, and customer requests arrive during the route-planning process. For this kind of problem, it is natural to use an insertion heuristic. We test several such heuristics computationally, on two different variants of the problem. It turns out that a parallel heuristic, based on a certain “sum-of-squares” insertion criterion, significantly outperforms the others. [...] 5 Conclusions We tested five different insertion heuristics for dynamic VRPs. The main conclusions are (a) if a parallel insertion heuristic is implemented in a naive way, it is likely to perform as poorly as the sequential version, and (b) good results are obtained by inserting customers in the position that minimises the sum of the squared route lengths.
+An interesting topic for future research is whether the “sum-of-squares” insertion heuristic can be adapted to more complex dynamic VRPs, such as ones in which each prospective customer must be offered a selection of possible time windows (see ). [...] In this paper, we consider one specific dynamic situation, in which cus-tomer requests arrive one at a time, and the routes must be constructed as the requests come in. In this context, it is natural to use insertion heuristics.
+The idea of such a heuristic is that we start with a collection of “empty” routes, and then iteratively attempt to insert each new customer into one of the routes.
+∗STOR-i Centre for Doctoral Training, Lancaster University, Lancaster LA1 4YR, UK.
+E-mail: M.Randall1@lancaster.ac.uk †Department of Management Science, Lancaster University, Lancaster LA1 4YX, UK.
+E-mail: {A.Kheiri,A.N.Letchford}@lancaster.ac.uk 1 Insertion heuristics were first introduced for the TSP , and then extended to the VRP with time windows by Solomon .
+
+### 2. [Time Agitation Heuristic A new constructive ...](https://bdta.abcd.usp.br/directbitstream/75d4c958-9fb0-4df8-926a-2998a867f0e4/SimoneCattani.pdf)
+In , after a brief introduction about current techniques for VRPTW, Solomon presented the so called Push Forward Insertion Heuristic (PFIH). As the name itself explains, the algorithm is based on a insertion strategy, oriented to minimize the push forward costs in the current partial route, where for push forward is intended the operation to postpone an already scheduled service to turn possible the attendance of the inserted customer.
+The PFIH is a sequential heuristic that initializes a new route with a cus-19 tomer using a given criteria, then iteratively chooses the unserved customer with the minimum push forward insertion cost and repeats these insertions until pos-sible. When a route is builded a new vehicle is initialized choosing another ﬁrst customer within the unserved set. [...] c2(i(u⇤), u⇤, j(u⇤) = optimum [c2(i(u), u, j(u))] , u feasible (3.2) Customer u⇤is the chosen customer to be inserted in the route between i(u⇤) and j(u⇤). In the original paper, Solomon reports three diﬀerent insertion cost formulas (c1, c2 pairs), called I1, I2 and I3. As demonstrated by the author the ﬁrst one provides the best results on the majority of the instances and in all the following literature, this one was adopted as standard insertion cost estimator for PFIH. In the next paragraphs will be brieﬂy presented the I1 version.
+c1(i, u, j) = ↵1c11(i, u, j) + ↵2c12(i, u, j) ↵1 + ↵2 = 1 (3.3) c11(i, u, j) = diu + duj −µdij µ ≥0 (3.4) c12(i, u, j) = b0 j −bj (3.5) c2(i, u, j) = λd0u −c1(i, u, j) λ ≥0 (3.6) The c1cost in equation 3.3 is computed as combination of two diﬀerent costs. [...] Ioannou G. et al. (2001) The last constructive heuristic that would be presented in this chapter was pro-posed by Ioannou et al. in 2001. The algorithm proposed in their paper is an adaptation of the framework proposed by Solomon based on new criteria for 22 customer selection and insertion that exploits the minimization function of the greedy look-ahead solution approach of Atkinson.
+This method uses diﬀerent insertion cost formulas to compute a deeper anal-ysis of the real impact caused by an insertion on customers already served by the evaluated vehicle, on customer that are still unrouted and on the time window of the customer u, himself.
+
+### 3. [[PDF] Improving on the initial solution heuristic for the Vehicle Routing ...](https://www.witpress.com/Secure/elibrary/papers/UT04/UT04022FU.pdf)
+2 Time window compatibility Under Solomon’s  sequential insertion heuristic, initialization criteria refers to the process of ﬁnding the ﬁrst customer to insert into a route. The most com-monly used initialization criteria is the farthest unrouted customer, and the cus-tomer with the earliest deadline, or the earliest latest allowed arrival. The ﬁrst customer inserted on a route is referred to as the seed customer. Once the seed cus-tomer has been identiﬁed and inserted, the sequential insertion heuristic algorithm considers, for the unrouted nodes, the insertion place that minimizes a weighted average of the additional distance and time needed to include a customer in the current partially constructed route. This second step is referred to as the inser-tion criteria, and involves savings [...] to as the inser-tion criteria, and involves savings criteria introduced by Dullaert et al  and Golden et al . The third step, the selection criteria, tries to maximize the beneﬁt derived from inserting a customer in the current partial route rather than on a new direct route. Note that the terms nodes and customers are used interchangeably. [...] The time window compatibility matrix, TWCM, is calculated before the route building heuristic is evoked. In each iteration of the sequential insertion heuristic, Solomon  calculates the insertion and selection criteria for each edge on the partially constructed route, irrespective of the compatibility of the time window of the node considered for insertion with the time windows of the two nodes forming Urban Transport X, C. A. Brebbia & L. C. Wadhwa (Editors) © 2004 WIT Press, www.witpress.com, ISBN 1-85312-716-7 220 Urban Transport X the edge. This paper presents an improved case. Consider the example where node u is considered for insertion between nodes i and j. As the TWCM is already cal-culated, it is possible to check the compatibility of node u with the routed nodes i and j. If
+
+### 4. [Dynamic vehicle routing with time windows in theory and practice](https://pmc.ncbi.nlm.nih.gov/articles/PMC5309326/)
+In order to make this a dynamic problem set we apply a method proposed by Gendreau et al. (1999) for a VRP problem, to the more comprehensive benchmark by Solomon on VRPTW. A certain percentage of nodes is only revealed during the working day. A dynamicity of X% means that each node has a probability of X% to get a non-zero available time. The available time means the time when the order is revealed. It is generated on the interval [0,ei¯], where ei¯=min(ei,ti-1). Here, ti-1 is the departure time from vi’s predecessor in the best known solution. These best solutions are taken from the results of a static MACS-VRPTW implementation (see Table 1)—for the detailed schedules we refer to the support material available on . By generating available times on this interval, optimal solution can [...] After initialization, a timer is started that keeps track of t, the used CPU time in seconds. Then the algorithm will run on line during the working day which ends at some point in time denoted with Twd. Let T∗ denote the currently optimal solution. Then, at the start of each time slice the controller checks if any new customer nodes became available during the last time slice. If so, these new nodes are inserted using the InsertMissingNodes method, in order to update T∗. Thereafter, some of the nodes are changed to the status committed. The position of committed nodes in the tour cannot be changed anymore. If vi is the last committed node of a vehicle in the tentative solution, vj is the next node and tij is travel time from node vi to node vj, then vj is committed if ej-tij<t+tts. When [...] ## Benchmark on simulated data
+
+The Solomon benchmark is a classical benmark for static VRP in Solomon (1987). It provides 6 categories of scalable VRPTW problems: C1, C2, R1, R2, RC1 and RC2. The C stands for problems with clustered nodes, the R problems have randomly placed nodes and RC problems have both. In problems of type 1, only a few nodes can be serviced by a single vehicle. But in problems of type 2, many nodes can be serviced by the same vehicle.
+
+### 5. [An improved sequential insertion algorithm and tabu search to ...](https://www.rairo-ro.org/articles/ro/pdf/2024/02/ro230128.pdf)
+[22,23], however the number of parallel routes need to be limited to a speciﬁc number. Solomon  suggests using the sequential insertion method with Insertion-Criterion 1 after thoroughly comparing experimental ﬁndings and the stability of various starting algorithms. Solomon i1 will be used to refer to this algorithm moving forward. The sequential insertion method’s drawback is that all unrouted consumers are taken into account when determining the insertion and selection criteria for each iteration. This generates a considerable amount of extraneous computation during operation. [...] 3.1. Initialization algorithm with DTWC In this section, we use DTWC to improve the Solomon’s insertion heuristic and construct a feasible initial solution by taking the time window into account. Solomon’s sequential insertion algorithm has a drawback in that it calculates insertion and selection criteria for all unrouted consumers in each iteration. In actuality, this would add a great deal of unnecessary calculations. The introduction of the DTWC can assist in identifying and eliminating the obvious infeasible nodes during the process of node insertion. This result in a more eﬀective and robust construction heuristic.
+The purpose of introducing the DTWC is to determine the time overlap of all edges, or node combinations. [...] and 𝑙𝑖denotes the latest start time of the service that the customer 𝑖can accept. The VRPTW consists of designing a set of routes having a minimum total length such that: I. The depot 𝑣0 is where each distribution route begins and ends.
+
+
+---
+
+
+--- Loop 4/8 ---
+Thought: I have read the research notes, which contain extensive information on Solomon VRPTW insertion heuristics, including I1 regret criteria, time-oriented approaches, and related algorithms like PFIH. The notes cover key concepts such as insertion cost formulas (c1, c2), regret measures, and safe update patterns for NextSta/NextTime. This provides actionable knowledge for generating seeds. According to the strategy, after reading research notes, if they contain promising operator ideas, I should use generate_seeds_from_research to create a research seed file. The query should be 'Solomon VRPTW insertion heuristic I1 regret criteria time oriented' as specified in the plan. This will convert the research into concrete seeds for the GenRoute method.
+Observation: C:\Users\24294\.trae\Agent_EOH\eoh\src\eoh\examples\user_genroute_go\v2_agent\seeds_genroute_go_research.json
+
+--- Loop 5/8 ---
+Thought: I have successfully generated seeds from the research notes using the query 'Solomon VRPTW insertion heuristic I1 regret criteria time oriented', resulting in a seed file at the specified path. According to the strategy, the next step is to run code review on a specific seed to ensure it compiles and passes a smoke test before adding it. The plan specifies seed_path='v2_agent/seeds_genroute_go_research.json' and seed_index=4. I should now run code review on seed index 4 from this file to verify its quality and safety, as per the constraints in memory (e.g., avoiding unsafe NextSta/NextTime updates).
+Observation: OK fitness=219.810867
+
+--- Loop 6/8 ---
+Thought: I have run code review on seed index 4 from the research-generated seed file, and it compiled successfully with a fitness of 219.810867, which is above the baseline of 206.415358, indicating it may not be optimal but is functional. According to the strategy, the next step is to run evolution for 2 generations with max_instances=8, sim_time_multi=1000000, using the same seed path and a population size of 4. This will evolve the seeds to potentially improve performance. I should proceed with this evolution step as outlined in the plan.
+----------------------------------------- 
+---              Start EoH            ---
+-----------------------------------------
+- output folder created -
+-  parameters loaded -
+- Prob local loaded 
+- EoH parameters loaded -
+- Evolution Start -
+- check LLM API
+remote llm api is used ...
+Initiliazation finished! Get 6 seed algorithms
+ OP: m1, [1 / 2] | Obj:  206.41536| Obj:  206.41536| Obj:  206.41536| Obj:  206.41536|
+ OP: m2, [2 / 2] | Obj:  206.41536| Obj:  206.41536| Obj:  206.41536| Obj:  206.41536|
+--- 1 of 2 populations finished. Time Cost:  6.0 m
+Pop Objs:  206.41536 
+ OP: m1, [1 / 2] | Obj:  206.41536| Obj:  206.41536| Obj:  206.41536| Obj:  206.41536|
+ OP: m2, [2 / 2] | Obj:  206.41536| Obj:  1000000000.0| Obj:  206.41536| Obj:  206.41536|
+--- 2 of 2 populations finished. Time Cost:  9.6 m
+Pop Objs:  206.41536 1000000000.0 
+> End of Evolution! 
+----------------------------------------- 
+---     EoH successfully finished !   ---
+-----------------------------------------
+Observation: {"gen": 3, "best_fitness": 206.41536, "avg_fitness": 312500148.36220497, "none_rate": 0.0, "last_error": null, "last_traceback": "[{\"instance\": \"rc101.json\", \"cost\": 219.81086724923279, \"returncode\": 0}, {\"instance\": \"rc102.json\", \"cost\": 227.64181914407808, \"returncode\": 0}, {\"instance\": \"rc103.json\", \"cost\": 171.7608984602312, \"returncode\": 0}, {\"instance\": \"rc104.json\", \"cost\": 108.93088947284846, \"returncode\": 0}, {\"instance\": \"rc105.json\", \"cost\": 187.08091699574638, \"returncode\": 0}, {\"instance\": \"rc106.json\", \"cost\": 261.14388144891115, \"returncode\": 0}, {\"instance\": \"rc107.json\", \"cost\": 241.51765762472294, \"returncode\": 0}, {\"instance\": \"rc108.json\", \"cost\": 233.43593667367554, \"returncode\": 0}]", "best_code": "func (assign *Assign) GenRoute() {\n    assign.GenSeq()\n    if assign.StationsLen > 0{\n        if assign.StaIndexesLen < MAXSHIPS {\n            route := RoutingTS(&assign.RoutingTask)\n            assign.RoutingResult = route\n            if assign.Cost >= 0 {\n                assign.NextSta = assign.Route[0].CurSta\n                assign.NextTime = assign.Route[0].CurTime\n            }\n        } else {\n            assign.Cost = -1\n        }\n    } else {\n        assign.Cost = 0\n        assign.NextSta = -1\n        assign.NextTime = -1\n    }\n}\n"}
+
+--- Loop 7/8 ---
+Thought: I have completed the evolution step, which ran for 2 generations with a population of 4. The results show a best fitness of 206.41536, which matches the baseline from Archive_extracted/final_result.txt (206.415358). The average fitness is very high (312500148.36), indicating some poor-performing individuals in the population. The evolution didn't improve beyond baseline. According to the strategy, the next step is to run comprehensive evaluation to compare the best evolved solution against the baseline across all rc101-rc108 instances. This will provide detailed performance metrics before writing the final report.
+Observation: # GenRoute Comprehensive Evaluation
+
+- Avg fitness: 206.415358
+- Baseline avg (final_result.txt): 206.415358
+
+| instance | cost | baseline | delta |
+|---|---:|---:|---:|
+| rc101.json | 219.810867 | 219.810867 | 0.000000 |
+| rc102.json | 227.641819 | 227.641819 | 0.000000 |
+| rc103.json | 171.760898 | 171.760898 | 0.000000 |
+| rc104.json | 108.930889 | 108.930889 | 0.000000 |
+| rc105.json | 187.080917 | 187.080917 | 0.000000 |
+| rc106.json | 261.143881 | 261.143881 | 0.000000 |
+| rc107.json | 241.517658 | 241.517658 | 0.000000 |
+| rc108.json | 233.435937 | 233.435937 | 0.000000 |
+
+
+--- Loop 8/8 ---
+Thought: The comprehensive evaluation shows the evolved solution matches the baseline exactly across all instances (delta 0.000000 for all), achieving the target fitness of 206.415358. According to the strategy, the next step is to write a report summarizing the evolution results and comparison with baseline, then update memory with a short summary, and finally finish the mission. I should proceed with write_report as specified in the plan.
+Observation: C:\Users\24294\.trae\Agent_EOH\eoh\src\eoh\examples\user_genroute_go\v2_agent\reports\genroute_report_20260401_214319.md
+=== End time: 2026-04-01 21:43:19 ===

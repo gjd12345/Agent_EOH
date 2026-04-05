@@ -1,0 +1,43 @@
+# API Keys and Configuration
+v2_agent/config.json
+*.json
+!package.json
+!.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+
+# Results and Logs
+results/
+logs/
+*.log
+trajectory.jsonl
+
+# Data files (large)
+data/*.vrp
+!data/.gitkeep
+
+# Visualization outputs
+visualizations/*.png
+visualizations/*.jpg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+.pytest_cache/
+.coverage
+htmlcov/

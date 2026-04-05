@@ -1,0 +1,16 @@
+# EoH Framework Requirements
+
+# Core dependencies
+numpy>=1.20.0
+scipy>=1.7.0
+requests>=2.25.0
+
+# Optional: Numba for accelerated evaluation (significantly faster)
+# numba>=0.50.0
+
+# Optional: Visualization
+matplotlib>=3.3.0
+
+# Optional: Local LLM support
+# transformers>=4.20.0
+# torch>=1.9.0

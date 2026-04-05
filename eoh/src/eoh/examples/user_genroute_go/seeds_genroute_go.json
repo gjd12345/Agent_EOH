@@ -1,0 +1,14 @@
+[
+  {
+    "algorithm": "Baseline GenRoute (same as Archive_extracted/main.go): GenSeq + RoutingTS; set NextSta/NextTime only when Cost>=0; if StaIndexesLen>=MAXSHIPS then mark infeasible.",
+    "code": "func (assign *Assign) GenRoute() {\n    assign.GenSeq()\n    if assign.StationsLen > 0{\n        if assign.StaIndexesLen < MAXSHIPS {\n            route := RoutingTS(&assign.RoutingTask)\n            assign.RoutingResult = route\n            if assign.Cost >= 0 {\n                assign.NextSta = assign.Route[0].CurSta\n                assign.NextTime = assign.Route[0].CurTime\n            }\n        } else {\n            assign.Cost = -1\n        }\n    } else {\n        assign.Cost = 0\n        assign.NextSta = -1\n        assign.NextTime = -1\n    }\n}\n"
+  },
+  {
+    "algorithm": "Variant A: Same as baseline, but when StationsLen==0 keep NextTime at TimeCurrent (not -1).",
+    "code": "func (assign *Assign) GenRoute() {\n    assign.GenSeq()\n    if assign.StationsLen > 0{\n        if assign.StaIndexesLen < MAXSHIPS {\n            route := RoutingTS(&assign.RoutingTask)\n            assign.RoutingResult = route\n            if assign.Cost >= 0 {\n                assign.NextSta = assign.Route[0].CurSta\n                assign.NextTime = assign.Route[0].CurTime\n            }\n        } else {\n            assign.Cost = -1\n        }\n    } else {\n        assign.Cost = 0\n        assign.NextSta = -1\n        assign.NextTime = assign.TimeCurrent\n    }\n}\n"
+  },
+  {
+    "algorithm": "Variant B: Same as baseline, but if Cost<0 then set NextSta to 0 and NextTime to TimeCurrent as safe defaults.",
+    "code": "func (assign *Assign) GenRoute() {\n    assign.GenSeq()\n    if assign.StationsLen > 0{\n        if assign.StaIndexesLen < MAXSHIPS {\n            route := RoutingTS(&assign.RoutingTask)\n            assign.RoutingResult = route\n            if assign.Cost >= 0 {\n                assign.NextSta = assign.Route[0].CurSta\n                assign.NextTime = assign.Route[0].CurTime\n            } else {\n                assign.NextSta = 0\n                assign.NextTime = assign.TimeCurrent\n            }\n        } else {\n            assign.Cost = -1\n            assign.NextSta = 0\n            assign.NextTime = assign.TimeCurrent\n        }\n    } else {\n        assign.Cost = 0\n        assign.NextSta = -1\n        assign.NextTime = assign.TimeCurrent\n    }\n}\n"
+  }
+]
